@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darion Finance | Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* --- DESIGN SYSTEM VARIABLES --- */
+        :root {
+            /* Brand Colors based on the generated palette */
+            --bg-dark: #090c10;
+            --bg-panel: #161b22; /* Dark Charcoal */
+            --primary-teal: #2C7446; /* The specific hex from the image */
+            --primary-light: #4a9e86;
+            --secondary-slate: #5e7a7d;
+            
+            /* Status Colors */
+            --accent-gold: #d4a94e; /* Success/Warning */
+            --accent-red: #c94646;  /* Alert */
+            
+            /* Typography */
+            --text-main: #ffffff;
+            --text-muted: #8b949e;
+            
+            /* Effects */
+            --glass-bg: rgba(22, 27, 34, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --radius-lg: 16px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            /* Creating the atmospheric glow seen in the brand image */
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(44, 116, 70, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(94, 122, 125, 0.1) 0%, transparent 40%);
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            padding: 30px;
+            border-right: var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 50px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff 20%, transparent 21%), var(--bg-panel);
+            background-size: 3px 3px; /* Stippled effect simulation */
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .brand h1 {
+            font-weight: 300;
+            font-size: 1.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover {
+            color: var(--text-main);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(44, 116, 70, 0.2) 0%, transparent 100%);
+            color: var(--primary-light);
+            border-left: 2px solid var(--primary-teal);
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Top Bar */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar {
+            background: var(--bg-panel);
+            border: var(--glass-border);
+            padding: 10px 20px;
+            border-radius: var(--radius-lg);
+            width: 300px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            width: 100%;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-slate);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        /* Cards Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Special gradient for the primary card */
+        .card.primary {
+            background: linear-gradient(135deg, var(--primary-teal) 0%, #1a2e25 100%);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .card.primary .card-label { color: rgba(255,255,255,0.7); }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .card-trend {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .trend-up { color: var(--primary-light); }
+        .trend-down { color: var(--accent-red); }
+        .card.primary .trend-up { color: #fff; opacity: 0.8; }
+
+        /* Dashboard Main Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .chart-container {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            height: 400px;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .transaction-list {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            flex-grow: 1;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .transaction-item:last-child { border-bottom: none; }
+
+        .t-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .t-info { flex-grow: 1; margin-left: 12px; }
+        .t-name { display: block; font-size: 0.9rem; }
+        .t-date { display: block; font-size: 0.75rem; color: var(--text-muted); }
+        .t-amount { font-weight: 500; }
+
+        /* Custom Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--text-main);
+            color: var(--bg-dark);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-main);
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="brand">
+            <div class="logo-icon"></div>
+            <h1>Darion Finance</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="nav-item active"><i class="fa-solid fa-layer-group"></i> Dashboard</a></li>
+            <li><a href="#" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Analytics</a></li>
+            <li><a href="#" class="nav-item"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+            <li><a href="#" class="nav-item"><i class="fa-solid fa-arrow-right-arrow-left"></i> Transactions</a></li>
+            <li><a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="header">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search for assets...">
+            </div>
+            <div class="user-profile">
+                <i class="fa-regular fa-bell" style="color: var(--text-muted); cursor: pointer;"></i>
+                <div class="avatar">JM</div>
+            </div>
+        </header>
+
+        <section class="stats-grid">
+            <div class="card primary">
+                <span class="card-label">Total Balance</span>
+                <div class="card-value">$24,593.00</div>
+                <div class="card-trend trend-up">
+                    <i class="fa-solid fa-arrow-trend-up"></i> +12.5% this month
+                </div>
+                <i class="fa-solid fa-coins" style="position: absolute; right: 20px; top: 20px; opacity: 0.1; font-size: 3rem;"></i>
+            </div>
+
+            <div class="card">
+                <span class="card-label">Total Income</span>
+                <div class="card-value">$8,240.50</div>
+                <div class="card-trend trend-up" style="color: var(--accent-gold);">
+                    <i class="fa-solid fa-arrow-trend-up"></i> +4.2%
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="card-label">Total Expenses</span>
+                <div class="card-value">$3,105.20</div>
+                <div class="card-trend trend-down">
+                    <i class="fa-solid fa-arrow-trend-down"></i> -2.4%
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+            
+            <div class="chart-container">
+                <div class="list-header">
+                    <span>Performance Overview</span>
+                    <select style="background: transparent; color: var(--text-muted); border: none; outline: none;">
+                        <option>This Year</option>
+                        <option>This Month</option>
+                    </select>
+                </div>
+                <canvas id="financeChart"></canvas>
+            </div>
+
+            <div class="side-panel">
+                <div class="transaction-list">
+                    <div class="list-header">
+                        <span>Recent Transactions</span>
+                        <i class="fa-solid fa-ellipsis" style="color: var(--text-muted); cursor: pointer;"></i>
+                    </div>
+
+                    <div class="transaction-item">
+                        <div class="t-icon"><i class="fa-brands fa-apple"></i></div>
+                        <div class="t-info">
+                            <span class="t-name">Apple Store</span>
+                            <span class="t-date">Today, 10:42 AM</span>
+                        </div>
+                        <span class="t-amount" style="color: var(--text-main);">-$120.00</span>
+                    </div>
+
+                    <div class="transaction-item">
+                        <div class="t-icon"><i class="fa-solid fa-arrow-down" style="color: var(--primary-light);"></i></div>
+                        <div class="t-info">
+                            <span class="t-name">Deposit</span>
+                            <span class="t-date">Yesterday, 4:30 PM</span>
+                        </div>
+                        <span class="t-amount" style="color: var(--primary-light);">+$4,500.00</span>
+                    </div>
+
+                    <div class="transaction-item">
+                        <div class="t-icon"><i class="fa-brands fa-netflix"></i></div>
+                        <div class="t-info">
+                            <span class="t-name">Netflix</span>
+                            <span class="t-date">Dec 12, 2024</span>
+                        </div>
+                        <span class="t-amount">-$15.99</span>
+                    </div>
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn btn-primary" style="flex: 1;">Transfer</button>
+                        <button class="btn btn-outline" style="flex: 1;">Details</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const ctx = document.getElementById('financeChart').getContext('2d');
+
+        // Gradient for the chart fill to match brand style
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(44, 116, 70, 0.5)'); // Brand Teal
+        gradient.addColorStop(1, 'rgba(44, 116, 70, 0.0)');
+
+        const financeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Portfolio Value',
+                    data: [12000, 19000, 15000, 22000, 24000, 28000, 26000, 31000, 35000, 33000, 38000, 42000],
+                    borderColor: '#4a9e86', // Lighter Teal
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#4a9e86',
+                    fill: true,
+                    tension: 0.4 // Smooth curves
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#8b949e'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#8b949e',
+                            callback: function(value) {
+                                return '$' + value / 1000 + 'k';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
